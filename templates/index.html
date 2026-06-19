@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>MedAI · Healthcare Analytics</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
+</head>
+<body>
+
+<!-- ░░ NOISE OVERLAY ░░ -->
+<div class="noise"></div>
+
+<!-- ░░ AMBIENT GLOWS ░░ -->
+<div class="glow glow-1"></div>
+<div class="glow glow-2"></div>
+<div class="glow glow-3"></div>
+
+<!-- ═══════════════════ SIDEBAR ═══════════════════ -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <span class="brand-icon">✦</span>
+    <span class="brand-text">MedAI</span>
+  </div>
+
+  <nav class="sidebar-nav">
+    <button class="nav-item active" data-tab="symptom">
+      <span class="nav-icon">⬡</span>
+      <span class="nav-label">Symptom Checker</span>
+    </button>
+    <button class="nav-item" data-tab="csv">
+      <span class="nav-icon">⬢</span>
+      <span class="nav-label">CSV Prediction</span>
+    </button>
+    <button class="nav-item" data-tab="explorer">
+      <span class="nav-icon">⬟</span>
+      <span class="nav-label">Group Explorer</span>
+    </button>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="model-badge">
+      <span class="pulse"></span>
+      <span>Models Active</span>
+    </div>
+    <p class="model-list">PCA · KMeans · Cosine</p>
+  </div>
+</aside>
+
+<!-- ═══════════════════ MAIN CONTENT ═══════════════════ -->
+<main class="main">
+
+  <!-- TOP BAR -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <button class="menu-btn" id="menuBtn">☰</button>
+      <div class="breadcrumb" id="breadcrumb">Symptom Checker</div>
+    </div>
+    <div class="topbar-right">
+      <div class="stat-pill">
+        <span class="dot green"></span>
+        <span id="clusterCount">13</span> Disease Groups
+      </div>
+      <div class="stat-pill">
+        <span class="dot blue"></span>
+        <span id="symptomCount">—</span> Symptoms Indexed
+      </div>
+    </div>
+  </header>
+
+  <!-- ─────────────────── TAB: SYMPTOM CHECKER ─────────────────── -->
+  <section class="tab-panel active" id="tab-symptom">
+    <div class="panel-header">
+      <h1 class="panel-title">Symptom <em>Checker</em></h1>
+      <p class="panel-sub">Select one or more symptoms to receive AI-powered condition predictions.</p>
+    </div>
+
+    <div class="symptom-layout">
+      <!-- Search + Select -->
+      <div class="symptom-input-card">
+        <label class="input-label">Search Symptoms</label>
+        <div class="search-wrapper">
+          <span class="search-icon">⌕</span>
+          <input type="text" id="symptomSearch" class="symptom-search" placeholder="e.g. headache, fever..."/>
+        </div>
+        <div class="symptom-list" id="symptomList"></div>
+
+        <div class="selected-tags-wrap">
+          <label class="input-label">Selected</label>
+          <div class="selected-tags" id="selectedTags">
+            <span class="tag-empty">No symptoms selected yet</span>
+          </div>
+        </div>
+
+        <button class="btn-primary" id="btnPredict">
+          <span class="btn-icon">⟡</span> Analyze Symptoms
+        </button>
+      </div>
+
+      <!-- Results -->
+      <div class="results-area" id="resultsArea">
+        <div class="results-placeholder">
+          <div class="placeholder-icon">⬡</div>
+          <p>Select symptoms and click <strong>Analyze</strong> to see predictions.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────────────── TAB: CSV PREDICTION ─────────────────── -->
+  <section class="tab-panel" id="tab-csv">
+    <div class="panel-header">
+      <h1 class="panel-title">CSV <em>Prediction</em></h1>
+      <p class="panel-sub">Upload a patient CSV file for batch medical condition prediction.</p>
+    </div>
+
+    <div class="upload-zone" id="uploadZone">
+      <input type="file" id="csvFile" accept=".csv" hidden/>
+      <div class="upload-inner">
+        <div class="upload-icon">⬆</div>
+        <p class="upload-title">Drop your CSV here</p>
+        <p class="upload-hint">or <span class="link" id="browseBtn">browse files</span></p>
+        <p class="upload-format">Columns: patient, Symptom_1, Symptom_2…</p>
+      </div>
+    </div>
+
+    <div class="csv-results hidden" id="csvResults">
+      <!-- Stats -->
+      <div class="stats-row" id="csvStats"></div>
+      <!-- Table -->
+      <div class="table-card">
+        <div class="table-header">
+          <h3>Prediction Results</h3>
+          <button class="btn-outline" id="downloadBtn">⬇ Download CSV</button>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table" id="resultsTable">
+            <thead>
+              <tr>
+                <th>Patient</th>
+                <th>Matched Symptoms</th>
+                <th>Disease Category</th>
+                <th>Possible Diseases</th>
+              </tr>
+            </thead>
+            <tbody id="resultsBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────────────── TAB: GROUP EXPLORER ─────────────────── -->
+  <section class="tab-panel" id="tab-explorer">
+    <div class="panel-header">
+      <h1 class="panel-title">Group <em>Explorer</em></h1>
+      <p class="panel-sub">Dive into any disease group and explore its signature symptoms and conditions.</p>
+    </div>
+
+    <div class="group-grid" id="groupGrid">
+      {% for num, name in cluster_names.items() %}
+      <button class="group-card" data-cluster="{{ num }}">
+        <span class="group-card-icon">{{ cluster_icons[num] }}</span>
+        <span class="group-card-name">{{ name }}</span>
+      </button>
+      {% endfor %}
+    </div>
+
+    <div class="explorer-results hidden" id="explorerResults">
+      <div class="explorer-header">
+        <span class="explorer-icon" id="explorerIcon"></span>
+        <h2 class="explorer-name" id="explorerName"></h2>
+      </div>
+      <div class="explorer-cols">
+        <div class="explorer-col">
+          <h4 class="col-title">Top Symptoms</h4>
+          <div class="bar-chart" id="symptomsChart"></div>
+        </div>
+        <div class="explorer-col">
+          <h4 class="col-title">Common Conditions</h4>
+          <div class="disease-list" id="diseaseList"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- Pass data to JS -->
+<script>
+  const ALL_SYMPTOMS = {{ symptom_columns | tojson }};
+  const CLUSTER_NAMES = {{ cluster_names | tojson }};
+  const CLUSTER_ICONS = {{ cluster_icons | tojson }};
+</script>
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

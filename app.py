@@ -15,7 +15,10 @@ scaler = joblib.load('models/scaler.pkl')
 pca = joblib.load('models/pca_model.pkl')
 kmeans = joblib.load('models/kmeans_model.pkl')
 
-main_df = pd.read_csv('data/final_healthcare_clustering_dataset.csv')
+main_df = pd.read_csv(
+    'data/final_healthcare_clustering_dataset.zip',
+    compression='zip'
+)
 
 # ─── Cluster Names ─────────────────────────────────────────────────────────────
 cluster_names = {
@@ -47,8 +50,8 @@ cluster_names = {
 }
 
 cluster_icons = {
-    0: "💪", 1: "🦷", 2: "🫁", 3: "🫀", 4: "🦴",
-    5: "🔬", 6: "🤱", 7: "👁️", 8: "👁️", 9: "🧠",
+    0: "💪", 1: "🦷", 2: "🫁", 3: "💧", 4: "🦴",
+    5: "🔬", 6: "🤱", 7: "👁️", 8: "👁️‍🗨️", 9: "🧠",
     10: "🫃", 11: "🧘", 12: "🩹",
 }
 
@@ -90,6 +93,25 @@ def index():
         cluster_names=cluster_names,
         cluster_icons=cluster_icons)
 
+@app.route('/api/sample-preview/<int:size>')
+def sample_preview(size):
+
+    mapping = {
+        10: 'static/sample_csvs/corrected_mixed_patients_10.csv',
+        15: 'static/sample_csvs/corrected_mixed_patients_15.csv',
+        20: 'static/sample_csvs/corrected_mixed_patients_20.csv'
+    }
+
+    if size not in mapping:
+        return jsonify({"error": "Invalid sample size"}), 404
+
+    df = pd.read_csv(mapping[size])
+
+    return jsonify({
+        "columns": list(df.columns),
+        "rows": df.fillna("").to_dict(orient='records'),
+        "total_rows": len(df)
+    })
 
 @app.route('/api/symptoms')
 def api_symptoms():

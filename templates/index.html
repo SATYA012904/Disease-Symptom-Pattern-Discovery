@@ -111,10 +111,40 @@
 
   <!-- ─────────────────── TAB: CSV PREDICTION ─────────────────── -->
   <section class="tab-panel" id="tab-csv">
-    <div class="panel-header">
-      <h1 class="panel-title">CSV <em>Prediction</em></h1>
-      <p class="panel-sub">Upload a patient CSV file for batch medical condition prediction.</p>
-    </div>
+  <div class="panel-header">
+    <h1 class="panel-title">CSV <em>Prediction</em></h1>
+    <p class="panel-sub">Upload a patient CSV file for batch medical condition prediction.</p>
+  </div>
+
+  <!-- Sample Datasets -->
+  <!-- <div class="sample-files-card">
+    <div id="samplePreview" class="sample-preview hidden"></div>
+
+      <h3>🧪 Try Sample Datasets</h3> -->
+      <p>Instantly test the system using built-in patient datasets.</p>
+
+      <div class="sample-grid">
+
+          <button class="sample-card" onclick="previewSample(10)">
+              <h4>10 Patients</h4>
+              <span>Quick Demo Dataset</span>
+          </button>
+
+          <button class="sample-card" onclick="previewSample(15)">
+              <h4>15 Patients</h4>
+              <span>Mixed Disease Cases</span>
+          </button>
+
+          <button class="sample-card" onclick="previewSample(20)">
+              <h4>20 Patients</h4>
+              <span>Full Showcase Dataset</span>
+          </button>
+
+      </div>
+      <div id="samplePreview" class="sample-preview hidden"></div>
+
+  </div>
+
 
     <div class="upload-zone" id="uploadZone">
       <input type="file" id="csvFile" accept=".csv" hidden/>
@@ -125,7 +155,7 @@
         <p class="upload-format">Columns: patient, Symptom_1, Symptom_2…</p>
       </div>
     </div>
-
+    <hr class="csv-divider">
     <div class="csv-results hidden" id="csvResults">
       <!-- Stats -->
       <div class="stats-row" id="csvStats"></div>

@@ -1,0 +1,11 @@
+patient,Symptom_1,Symptom_2,Symptom_3,Symptom_4,Symptom_5,Symptom_6,Symptom_7,Symptom_8,Symptom_9,Symptom_10
+Patient_1,drug abuse,depressive or psychotic symptoms,anxiety and nervousness,hostile behavior,abusing alcohol,itching of skin,abnormal appearing skin,skin rash,skin moles,skin growth
+Patient_2,temper problems,depressive or psychotic symptoms,hostile behavior,delusions or hallucinations,insomnia,lower abdominal pain,involuntary urination,painful urination,frequent urination,blood in urine
+Patient_3,constipation,sharp abdominal pain,blood in stool,side pain,burning abdominal pain,itchiness of eye,pain in eye,white discharge from eye,symptoms of eye,diminished vision
+Patient_4,skin moles,skin swelling,abnormal appearing skin,acne or pimples,itching of skin,involuntary urination,back pain,suprapubic pain,painful urination,burning abdominal pain
+Patient_5,abusing alcohol,drug abuse,temper problems,depression,depressive or psychotic symptoms,wheezing,sharp chest pain,sore throat,headache,cough
+Patient_6,diminished vision,symptoms of eye,white discharge from eye,eye burns or stings,lacrimation,skin growth,skin lesion,abnormal appearing skin,acne or pimples,skin moles
+Patient_7,back pain,lower abdominal pain,involuntary urination,frequent urination,blood in urine,nasal congestion,difficulty breathing,fatigue,wheezing,sore throat
+Patient_8,eyelid swelling,diminished vision,itchiness of eye,symptoms of eye,eye burns or stings,vomiting,diarrhea,constipation,lower abdominal pain,side pain
+Patient_9,symptoms of bladder,lower abdominal pain,frequent urination,back pain,retention of urine,skin rash,skin growth,skin lesion,itching of skin,acne or pimples
+Patient_10,burning abdominal pain,symptoms of bladder,painful urination,blood in urine,suprapubic pain,white discharge from eye,eyelid swelling,swollen eye,itchiness of eye,eye redness

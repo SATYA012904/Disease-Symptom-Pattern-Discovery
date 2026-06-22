@@ -1,0 +1,21 @@
+patient,Symptom_1,Symptom_2,Symptom_3,Symptom_4,Symptom_5,Symptom_6,Symptom_7,Symptom_8,Symptom_9,Symptom_10
+Patient_1,painful urination,blood in urine,involuntary urination,symptoms of bladder,lower abdominal pain,skin rash,acne or pimples,skin moles,skin swelling,itching of skin
+Patient_2,sore throat,fatigue,difficulty breathing,cough,sharp chest pain,pain in eye,eyelid swelling,lacrimation,white discharge from eye,symptoms of eye
+Patient_3,lower abdominal pain,blood in stool,sharp abdominal pain,nausea,vomiting,white discharge from eye,symptoms of eye,diminished vision,pain in eye,eye burns or stings
+Patient_4,involuntary urination,frequent urination,back pain,symptoms of bladder,painful urination,nausea,constipation,blood in stool,lower abdominal pain,side pain
+Patient_5,back pain,frequent urination,involuntary urination,suprapubic pain,burning abdominal pain,sharp chest pain,shortness of breath,fatigue,sore throat,wheezing
+Patient_6,eye redness,eyelid swelling,lacrimation,itchiness of eye,eye burns or stings,fatigue,shortness of breath,headache,wheezing,fever
+Patient_7,drug abuse,anxiety and nervousness,depression,depressive or psychotic symptoms,insomnia,lower abdominal pain,symptoms of bladder,involuntary urination,burning abdominal pain,retention of urine
+Patient_8,side pain,vomiting,constipation,nausea,sharp abdominal pain,lacrimation,pain in eye,eye burns or stings,eye redness,diminished vision
+Patient_9,skin lesion,itching of skin,skin swelling,acne or pimples,abnormal appearing skin,vomiting,nausea,constipation,sharp abdominal pain,blood in stool
+Patient_10,eye redness,pain in eye,eye burns or stings,eyelid swelling,symptoms of eye,nasal congestion,fever,cough,wheezing,headache
+Patient_11,skin swelling,skin lesion,acne or pimples,skin growth,itching of skin,sharp chest pain,cough,difficulty breathing,wheezing,sore throat
+Patient_12,acne or pimples,skin rash,skin moles,skin swelling,skin lesion,headache,cough,sore throat,fever,nasal congestion
+Patient_13,white discharge from eye,diminished vision,lacrimation,eyelid swelling,swollen eye,sore throat,cough,wheezing,nasal congestion,difficulty breathing
+Patient_14,eye redness,white discharge from eye,swollen eye,diminished vision,eyelid swelling,itching of skin,skin lesion,skin moles,acne or pimples,skin swelling
+Patient_15,excessive anger,temper problems,insomnia,depression,delusions or hallucinations,side pain,diarrhea,vomiting,lower abdominal pain,constipation
+Patient_16,side pain,vomiting,constipation,diarrhea,lower abdominal pain,eyelid swelling,white discharge from eye,symptoms of eye,eye burns or stings,itchiness of eye
+Patient_17,skin rash,acne or pimples,skin lesion,skin growth,skin moles,excessive anger,hostile behavior,depressive or psychotic symptoms,temper problems,drug abuse
+Patient_18,difficulty breathing,sore throat,fatigue,cough,sharp chest pain,blood in stool,burning abdominal pain,side pain,nausea,constipation
+Patient_19,temper problems,drug abuse,abusing alcohol,insomnia,excessive anger,involuntary urination,back pain,blood in urine,burning abdominal pain,retention of urine
+Patient_20,vomiting,lower abdominal pain,constipation,blood in stool,diarrhea,blood in urine,burning abdominal pain,back pain,lower abdominal pain,painful urination

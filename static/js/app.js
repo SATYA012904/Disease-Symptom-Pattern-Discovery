@@ -87,6 +87,66 @@ function renderSymptomList(query) {
   });
 }
 
+async function previewSample(size){
+
+    const res = await fetch(`/api/sample-preview/${size}`);
+    const data = await res.json();
+
+    const preview = document.getElementById("samplePreview");
+
+    preview.classList.remove("hidden");
+
+    preview.innerHTML = `
+        <div class="preview-header">
+            <h3>📄 Sample Dataset (${data.total_rows} Patients)</h3>
+
+            <button class="btn-primary"
+                onclick="loadSample(${size})">
+                Use This Dataset
+            </button>
+        </div>
+
+        <div class="preview-info">
+            Showing first 5 records from the sample CSV
+        </div>
+
+        <div class="preview-table-wrap">
+            <table class="preview-table">
+                <thead>
+                    <tr>
+                        ${data.columns.map(c=>`<th>${c}</th>`).join('')}
+                    </tr>
+                </thead>
+
+                <tbody>
+                    ${data.rows.map(row=>`
+                        <tr>
+                            ${data.columns.map(c=>`<td>${row[c] || ''}</td>`).join('')}
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        </div>
+    `;
+}
+
+async function loadSample(size) {
+
+    const response = await fetch(
+        `/static/sample_csvs/corrected_mixed_patients_${size}.csv`
+    );
+
+    const blob = await response.blob();
+
+    const file = new File(
+        [blob],
+        `sample_${size}.csv`,
+        { type: 'text/csv' }
+    );
+
+    uploadCSV(file);
+}
+
 function toggleSymptom(sym) {
   if (selectedSymptoms.has(sym)) {
     selectedSymptoms.delete(sym);
@@ -195,10 +255,12 @@ function initCSVUpload() {
 
 async function uploadCSV(file) {
   const zone = $('uploadZone');
-  zone.innerHTML = `
-    <div class="upload-inner">
-      <div class="loading"><div class="spinner"></div> Analyzing ${file.name}…</div>
-    </div>`;
+
+  const title = zone.querySelector('.upload-title');
+
+  if(title){
+      title.textContent = `Analyzing ${file.name}...`;
+  }
 
   const fd = new FormData();
   fd.append('file', file);
@@ -208,6 +270,12 @@ async function uploadCSV(file) {
     const data = await res.json();
     csvData = data;
     renderCSVResults(data);
+
+    // Auto scroll to results
+$('csvResults').scrollIntoView({
+    behavior: 'smooth',
+    block: 'start'
+});
   } catch (e) {
     zone.innerHTML = defaultUploadInner();
     alert('Upload failed. Please try again.');
@@ -215,7 +283,6 @@ async function uploadCSV(file) {
 }
 
 function renderCSVResults(data) {
-  $('uploadZone').classList.add('hidden');
   const csvResults = $('csvResults');
   csvResults.classList.remove('hidden');
 
@@ -247,6 +314,19 @@ function renderCSVResults(data) {
       <td style="font-size:.8rem; color:var(--text-2)">${r.possible_diseases}</td>
     </tr>
   `).join('');
+
+  
+    const title = $('uploadZone').querySelector('.upload-title');
+
+if(title){
+    title.textContent = "Analyze Another Dataset";
+}
+
+const format = $('uploadZone').querySelector('.upload-format');
+
+if(format){
+    format.textContent = "Drag & drop another patient CSV file";
+}
 }
 
 function downloadResults() {
@@ -309,14 +389,20 @@ async function loadGroupData(clusterNum) {
     const symptoms = Object.entries(data.top_symptoms);
     const maxSym   = symptoms[0]?.[1] || 1;
     $('symptomsChart').innerHTML = symptoms.map(([sym, val]) => `
-      <div class="bar-row">
-        <div class="bar-label" title="${sym}">${sym.replace(/_/g,' ')}</div>
-        <div class="bar-track">
-          <div class="bar-fill" style="width:${(val/maxSym*100).toFixed(1)}%"></div>
-        </div>
-        <div class="bar-val">${(val*100).toFixed(0)}%</div>
+  <div class="bar-item">
+    <div class="bar-label">${sym.replace(/_/g,' ')}</div>
+
+    <div class="bar-row">
+      <div class="bar">
+        <div class="fill" style="width:${(val*100).toFixed(1)}%""></div>
       </div>
-    `).join('');
+
+      <span class="bar-percent">
+        ${(val*100).toFixed(0)}%
+      </span>
+    </div>
+  </div>
+`).join('');
 
     // Disease list
     const diseases = Object.entries(data.top_diseases);

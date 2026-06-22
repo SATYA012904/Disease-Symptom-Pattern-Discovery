@@ -1,0 +1,16 @@
+patient,Symptom_1,Symptom_2,Symptom_3,Symptom_4,Symptom_5,Symptom_6,Symptom_7,Symptom_8,Symptom_9,Symptom_10
+Patient_1,headache,fever,nasal congestion,difficulty breathing,shortness of breath,acne or pimples,skin lesion,skin swelling,itching of skin,skin moles
+Patient_2,headache,difficulty breathing,nasal congestion,cough,sharp chest pain,burning abdominal pain,blood in urine,suprapubic pain,symptoms of bladder,lower abdominal pain
+Patient_3,pain in eye,lacrimation,symptoms of eye,eye redness,eye burns or stings,acne or pimples,skin moles,itching of skin,skin rash,skin lesion
+Patient_4,wheezing,sore throat,nasal congestion,shortness of breath,headache,nausea,constipation,burning abdominal pain,lower abdominal pain,sharp abdominal pain
+Patient_5,anxiety and nervousness,depression,drug abuse,excessive anger,delusions or hallucinations,symptoms of eye,eyelid swelling,pain in eye,eye burns or stings,swollen eye
+Patient_6,symptoms of bladder,retention of urine,burning abdominal pain,lower abdominal pain,painful urination,abnormal appearing skin,itching of skin,acne or pimples,skin moles,skin growth
+Patient_7,diarrhea,burning abdominal pain,nausea,blood in stool,vomiting,skin lesion,skin rash,acne or pimples,skin swelling,skin growth
+Patient_8,shortness of breath,wheezing,sore throat,fever,cough,itching of skin,acne or pimples,abnormal appearing skin,skin moles,skin growth
+Patient_9,eyelid swelling,white discharge from eye,itchiness of eye,lacrimation,pain in eye,painful urination,frequent urination,retention of urine,blood in urine,suprapubic pain
+Patient_10,sharp chest pain,shortness of breath,fatigue,sore throat,fever,swollen eye,eye burns or stings,white discharge from eye,lacrimation,symptoms of eye
+Patient_11,symptoms of bladder,blood in urine,lower abdominal pain,frequent urination,burning abdominal pain,burning abdominal pain,lower abdominal pain,vomiting,nausea,diarrhea
+Patient_12,shortness of breath,nasal congestion,sharp chest pain,fatigue,headache,painful urination,lower abdominal pain,frequent urination,symptoms of bladder,back pain
+Patient_13,involuntary urination,painful urination,burning abdominal pain,suprapubic pain,retention of urine,skin rash,skin moles,skin growth,itching of skin,acne or pimples
+Patient_14,skin moles,acne or pimples,skin lesion,abnormal appearing skin,skin rash,symptoms of bladder,lower abdominal pain,back pain,burning abdominal pain,suprapubic pain
+Patient_15,temper problems,delusions or hallucinations,excessive anger,drug abuse,depressive or psychotic symptoms,wheezing,shortness of breath,sharp chest pain,fatigue,nasal congestion

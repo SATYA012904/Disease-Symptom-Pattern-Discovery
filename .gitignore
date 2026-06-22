@@ -20,4 +20,5 @@ Thumbs.db
 # Logs
 *.log
 
+# Ignore large raw dataset
 data/final_healthcare_clustering_dataset.csv

@@ -16,7 +16,7 @@ pca = joblib.load('models/pca_model.pkl')
 kmeans = joblib.load('models/kmeans_model.pkl')
 
 main_df = pd.read_csv(
-    'data/final_healthcare_clustering_dataset.zip',
+    'data/preclustered_dataset.zip',
     compression='zip'
 )
 main_df[symptom_columns] = main_df[symptom_columns].astype('uint8')
@@ -60,13 +60,9 @@ cluster_icons = {
 # ─── Pre-compute clustered data ────────────────────────────────────────────────
 X = main_df[symptom_columns]
 y = main_df['diseases']
-scaled_X   = scaler.transform(X)
-X_pca      = pca.transform(scaled_X)
-main_df['Cluster'] = kmeans.predict(X_pca)
 
-X_clustered            = X.copy()
-X_clustered['Cluster'] = main_df['Cluster']
-X_clustered['diseases']= y.values
+# Cluster column already exists in preclustered_dataset.zip
+X_clustered = main_df
 
 
 def predict_for_input(input_vector_df):

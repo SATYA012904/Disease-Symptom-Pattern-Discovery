@@ -19,6 +19,9 @@ main_df = pd.read_csv(
     'data/final_healthcare_clustering_dataset.zip',
     compression='zip'
 )
+main_df[symptom_columns] = main_df[symptom_columns].astype('uint8')
+print("Dataset Shape:", main_df.shape)
+print("Memory Usage:", main_df.memory_usage(deep=True).sum() / 1024**2, "MB")
 
 # ─── Cluster Names ─────────────────────────────────────────────────────────────
 cluster_names = {
@@ -56,7 +59,7 @@ cluster_icons = {
 }
 
 # ─── Pre-compute clustered data ────────────────────────────────────────────────
-X = main_df[symptom_columns].copy()
+X = main_df[symptom_columns]
 y = main_df['diseases']
 scaled_X   = scaler.transform(X)
 X_pca      = pca.transform(scaled_X)

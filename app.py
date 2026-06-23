@@ -20,8 +20,7 @@ main_df = pd.read_csv(
     compression='zip'
 )
 main_df[symptom_columns] = main_df[symptom_columns].astype('uint8')
-print("Dataset Shape:", main_df.shape)
-print("Memory Usage:", main_df.memory_usage(deep=True).sum() / 1024**2, "MB")
+
 
 # ─── Cluster Names ─────────────────────────────────────────────────────────────
 cluster_names = {

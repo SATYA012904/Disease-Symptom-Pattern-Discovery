@@ -1,10 +1,7 @@
-from flask import Flask, render_template, request, jsonify, send_file
+from flask import Flask, render_template, request, jsonify
 import pandas as pd
 import numpy as np
 import joblib
-import io
-import base64
-import json
 from sklearn.metrics.pairwise import cosine_similarity
 
 app = Flask(__name__)
@@ -15,28 +12,17 @@ scaler = joblib.load('models/scaler.pkl')
 pca = joblib.load('models/pca_model.pkl')
 kmeans = joblib.load('models/kmeans_model.pkl')
 
+# ── dtype map passed directly into read_csv so pandas never allocates
+# ── the float64 intermediate (which would spike to ~616 MB and OOM on Render)
+_dtype_map = {col: 'uint8' for col in symptom_columns}
+_dtype_map['Cluster'] = 'uint8'
+
 main_df = pd.read_csv(
     'data/preclustered_dataset.zip',
-    compression='zip'
+    compression='zip',
+    dtype=_dtype_map
 )
-main_df[symptom_columns] = main_df[symptom_columns].astype('uint8')
-main_df['Cluster'] = main_df['Cluster'].astype('uint8')
 main_df['diseases'] = main_df['diseases'].astype('category')
-print("Shape:", main_df.shape)
-print("Memory:", main_df.memory_usage(deep=True).sum()/1024**2, "MB")
-
-print(main_df.info(memory_usage='deep'))
-
-print(
-    "Diseases column memory:",
-    main_df['diseases'].memory_usage(deep=True)/1024**2,
-    "MB"
-)
-
-print(
-    "Unique diseases:",
-    main_df['diseases'].nunique()
-)
 
 
 # ─── Cluster Names ─────────────────────────────────────────────────────────────
@@ -80,16 +66,6 @@ cluster_icons = {
 
 # Cluster column already exists in preclustered_dataset.zip
 X_clustered = main_df
-import os
-import psutil
-
-process = psutil.Process(os.getpid())
-
-print(
-    "RAM:",
-    process.memory_info().rss / 1024**2,
-    "MB"
-)
 
 
 def predict_for_input(input_vector_df):

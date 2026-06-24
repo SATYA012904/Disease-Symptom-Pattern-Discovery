@@ -20,6 +20,23 @@ main_df = pd.read_csv(
     compression='zip'
 )
 main_df[symptom_columns] = main_df[symptom_columns].astype('uint8')
+main_df['Cluster'] = main_df['Cluster'].astype('uint8')
+main_df['diseases'] = main_df['diseases'].astype('category')
+print("Shape:", main_df.shape)
+print("Memory:", main_df.memory_usage(deep=True).sum()/1024**2, "MB")
+
+print(main_df.info(memory_usage='deep'))
+
+print(
+    "Diseases column memory:",
+    main_df['diseases'].memory_usage(deep=True)/1024**2,
+    "MB"
+)
+
+print(
+    "Unique diseases:",
+    main_df['diseases'].nunique()
+)
 
 
 # ─── Cluster Names ─────────────────────────────────────────────────────────────
@@ -58,11 +75,21 @@ cluster_icons = {
 }
 
 # ─── Pre-compute clustered data ────────────────────────────────────────────────
-X = main_df[symptom_columns]
-y = main_df['diseases']
+# X = main_df[symptom_columns]
+# y = main_df['diseases']
 
 # Cluster column already exists in preclustered_dataset.zip
 X_clustered = main_df
+import os
+import psutil
+
+process = psutil.Process(os.getpid())
+
+print(
+    "RAM:",
+    process.memory_info().rss / 1024**2,
+    "MB"
+)
 
 
 def predict_for_input(input_vector_df):

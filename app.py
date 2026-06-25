@@ -1,7 +1,10 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, send_file
 import pandas as pd
 import numpy as np
 import joblib
+import io
+import base64
+import json
 from sklearn.metrics.pairwise import cosine_similarity
 
 app = Flask(__name__)
@@ -12,17 +15,28 @@ scaler = joblib.load('models/scaler.pkl')
 pca = joblib.load('models/pca_model.pkl')
 kmeans = joblib.load('models/kmeans_model.pkl')
 
-# ── dtype map passed directly into read_csv so pandas never allocates
-# ── the float64 intermediate (which would spike to ~616 MB and OOM on Render)
-_dtype_map = {col: 'uint8' for col in symptom_columns}
-_dtype_map['Cluster'] = 'uint8'
-
 main_df = pd.read_csv(
     'data/preclustered_dataset.zip',
-    compression='zip',
-    dtype=_dtype_map
+    compression='zip'
 )
+main_df[symptom_columns] = main_df[symptom_columns].astype('uint8')
+main_df['Cluster'] = main_df['Cluster'].astype('uint8')
 main_df['diseases'] = main_df['diseases'].astype('category')
+print("Shape:", main_df.shape)
+print("Memory:", main_df.memory_usage(deep=True).sum()/1024**2, "MB")
+
+print(main_df.info(memory_usage='deep'))
+
+print(
+    "Diseases column memory:",
+    main_df['diseases'].memory_usage(deep=True)/1024**2,
+    "MB"
+)
+
+print(
+    "Unique diseases:",
+    main_df['diseases'].nunique()
+)
 
 
 # ─── Cluster Names ─────────────────────────────────────────────────────────────
@@ -66,17 +80,27 @@ cluster_icons = {
 
 # Cluster column already exists in preclustered_dataset.zip
 X_clustered = main_df
+import os
+import psutil
+
+process = psutil.Process(os.getpid())
+
+print(
+    "RAM:",
+    process.memory_info().rss / 1024**2,
+    "MB"
+)
 
 
 def predict_for_input(input_vector_df):
-    scaled = scaler.transform(input_vector_df)
+    scaled = scaler.transform(input_vector_df.values)
     pca_v  = pca.transform(scaled)
     cluster_num  = kmeans.predict(pca_v)[0]
     cluster_name = cluster_names[cluster_num]
 
     cluster_data     = X_clustered[X_clustered['Cluster'] == cluster_num]
     cluster_features = cluster_data.drop(columns=['Cluster','diseases'])
-    sim_scores       = cosine_similarity(input_vector_df, cluster_features)[0]
+    sim_scores       = cosine_similarity(input_vector_df.values, cluster_features)[0]
     top_indices      = np.argsort(sim_scores)[-100:]
     similar_diseases = cluster_data.iloc[top_indices]['diseases']
     disease_counts   = similar_diseases.value_counts()
@@ -172,21 +196,25 @@ def api_csv_predict():
     patient_df = pd.read_csv(f)
     symptom_cols = [c for c in patient_df.columns if c.startswith('Symptom_')]
 
-    input_df       = pd.DataFrame(0, index=range(len(patient_df)), columns=symptom_columns)
+    # Use uint8 to minimize memory (vs default int64 which is 8x larger)
+    input_df       = pd.DataFrame(0, index=range(len(patient_df)), columns=symptom_columns, dtype='uint8')
     matched_counts = []
 
+    sym_set = set(symptom_columns)  # O(1) lookup instead of O(n)
     for i, row in patient_df.iterrows():
         matched = 0
         for col in symptom_cols:
             sym = str(row[col]).strip().lower()
-            if sym in input_df.columns:
-                input_df.loc[i, sym] = 1
+            if sym in sym_set:
+                input_df.at[i, sym] = 1
                 matched += 1
         matched_counts.append(matched)
 
-    scaled_input      = scaler.transform(input_df)
-    pca_input         = pca.transform(scaled_input)
-    predicted_clusters= kmeans.predict(pca_input)
+    # Convert to float32 (not float64) for scaler — halves memory
+    scaled_input       = scaler.transform(input_df.values)
+    pca_input          = pca.transform(scaled_input)
+    predicted_clusters = kmeans.predict(pca_input)
+    del scaled_input, pca_input  # free immediately
 
     recommendations = []
     for i in range(len(patient_df)):

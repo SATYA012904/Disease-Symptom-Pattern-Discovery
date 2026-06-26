@@ -15,28 +15,8 @@ scaler = joblib.load('models/scaler.pkl')
 pca = joblib.load('models/pca_model.pkl')
 kmeans = joblib.load('models/kmeans_model.pkl')
 
-main_df = pd.read_csv(
-    'data/preclustered_dataset.zip',
-    compression='zip'
-)
-main_df[symptom_columns] = main_df[symptom_columns].astype('uint8')
-main_df['Cluster'] = main_df['Cluster'].astype('uint8')
-main_df['diseases'] = main_df['diseases'].astype('category')
-print("Shape:", main_df.shape)
-print("Memory:", main_df.memory_usage(deep=True).sum()/1024**2, "MB")
-
-print(main_df.info(memory_usage='deep'))
-
-print(
-    "Diseases column memory:",
-    main_df['diseases'].memory_usage(deep=True)/1024**2,
-    "MB"
-)
-
-print(
-    "Unique diseases:",
-    main_df['diseases'].nunique()
-)
+# Load pre-computed cluster cache (1MB) instead of full dataset (78MB+)
+cluster_cache = joblib.load('models/cluster_cache.pkl')
 
 
 # ─── Cluster Names ─────────────────────────────────────────────────────────────
@@ -78,35 +58,31 @@ cluster_icons = {
 # X = main_df[symptom_columns]
 # y = main_df['diseases']
 
-# Cluster column already exists in preclustered_dataset.zip
-X_clustered = main_df
-import os
-import psutil
 
-process = psutil.Process(os.getpid())
-
-print(
-    "RAM:",
-    process.memory_info().rss / 1024**2,
-    "MB"
-)
 
 
 def predict_for_input(input_vector_df):
-    scaled = scaler.transform(input_vector_df.values)
-    pca_v  = pca.transform(scaled)
-    cluster_num  = kmeans.predict(pca_v)[0]
+    scaled       = scaler.transform(input_vector_df)
+    pca_v        = pca.transform(scaled)
+    cluster_num  = int(kmeans.predict(pca_v)[0])
     cluster_name = cluster_names[cluster_num]
 
-    cluster_data     = X_clustered[X_clustered['Cluster'] == cluster_num]
-    cluster_features = cluster_data.drop(columns=['Cluster','diseases'])
-    sim_scores       = cosine_similarity(input_vector_df.values, cluster_features)[0]
-    top_indices      = np.argsort(sim_scores)[-100:]
-    similar_diseases = cluster_data.iloc[top_indices]['diseases']
-    disease_counts   = similar_diseases.value_counts()
-    disease_counts   = disease_counts[disease_counts >= 3]
-    disease_pct      = (disease_counts / disease_counts.sum()) * 100
+    cache        = cluster_cache[cluster_num]
+    features     = cache['features']
+    diseases     = cache['diseases']
 
+    sim_scores   = cosine_similarity(input_vector_df, features)[0]
+    top_indices  = np.argsort(sim_scores)[-100:]
+    sim_diseases = diseases[top_indices]
+
+    unique, counts = np.unique(sim_diseases, return_counts=True)
+    mask         = counts >= 3
+    unique, counts = unique[mask], counts[mask]
+    total        = counts.sum()
+    pct          = (counts / total) * 100
+    order        = np.argsort(pct)[::-1]
+
+    disease_pct  = {unique[i]: pct[i] for i in order}
     return cluster_num, cluster_name, disease_pct
 
 
@@ -171,19 +147,10 @@ def api_symptom_check():
 def api_group_explorer():
     data        = request.json
     cluster_num = int(data.get('cluster_num', 0))
-
-    cluster_data = X_clustered[X_clustered['Cluster'] == cluster_num]
-    symptom_means = (
-        cluster_data.drop(columns=['Cluster','diseases'])
-        .mean()
-        .sort_values(ascending=False)
-        .head(10)
-    )
-    top_diseases = cluster_data['diseases'].value_counts().head(10)
-
+    cache       = cluster_cache[cluster_num]
     return jsonify({
-        "top_symptoms": {k: round(float(v),4) for k,v in symptom_means.items()},
-        "top_diseases": {k: int(v) for k,v in top_diseases.items()},
+        "top_symptoms": cache['top_symptoms'],
+        "top_diseases": cache['top_diseases'],
     })
 
 
@@ -192,15 +159,14 @@ def api_csv_predict():
     if 'file' not in request.files:
         return jsonify({'error': 'No file uploaded'}), 400
 
-    f          = request.files['file']
-    patient_df = pd.read_csv(f)
+    f            = request.files['file']
+    patient_df   = pd.read_csv(f)
     symptom_cols = [c for c in patient_df.columns if c.startswith('Symptom_')]
+    sym_set      = set(symptom_columns)
 
-    # Use uint8 to minimize memory (vs default int64 which is 8x larger)
     input_df       = pd.DataFrame(0, index=range(len(patient_df)), columns=symptom_columns, dtype='uint8')
     matched_counts = []
 
-    sym_set = set(symptom_columns)  # O(1) lookup instead of O(n)
     for i, row in patient_df.iterrows():
         matched = 0
         for col in symptom_cols:
@@ -210,24 +176,32 @@ def api_csv_predict():
                 matched += 1
         matched_counts.append(matched)
 
-    # Convert to float32 (not float64) for scaler — halves memory
-    scaled_input       = scaler.transform(input_df.values)
+    scaled_input       = scaler.transform(input_df)
     pca_input          = pca.transform(scaled_input)
     predicted_clusters = kmeans.predict(pca_input)
-    del scaled_input, pca_input  # free immediately
+    del scaled_input, pca_input
 
     recommendations = []
     for i in range(len(patient_df)):
-        cn           = predicted_clusters[i]
-        cdata        = X_clustered[X_clustered['Cluster'] == cn]
-        cfeatures    = cdata.drop(columns=['Cluster','diseases'])
-        sims         = cosine_similarity([input_df.iloc[i]], cfeatures)[0]
-        top_idx      = np.argsort(sims)[-100:]
-        sim_dis      = cdata.iloc[top_idx]['diseases']
-        dc           = sim_dis.value_counts()
-        dc           = dc[dc >= 3]
-        dp           = (dc / dc.sum()) * 100
-        top3 = [f"{d} ({p:.1f}%)" for d,p in dp.head(3).items()]
+        cn       = int(predicted_clusters[i])
+        cache    = cluster_cache[cn]
+        features = cache['features']
+        diseases = cache['diseases']
+
+        sims    = cosine_similarity([input_df.iloc[i].values], features)[0]
+        top_idx = np.argsort(sims)[-100:]
+        sim_dis = diseases[top_idx]
+
+        unique, counts = np.unique(sim_dis, return_counts=True)
+        mask           = counts >= 3
+        unique, counts = unique[mask], counts[mask]
+        if len(unique) == 0:
+            recommendations.append("No strong match found")
+            continue
+        total = counts.sum()
+        pct   = (counts / total) * 100
+        order = np.argsort(pct)[::-1]
+        top3  = [f"{unique[j]} ({pct[j]:.1f}%)" for j in order[:3]]
         recommendations.append(" | ".join(top3))
 
     rows = []
@@ -239,15 +213,11 @@ def api_csv_predict():
             "possible_diseases": recommendations[i],
         })
 
-    total_patients    = len(patient_df)
-    total_matched     = int(sum(matched_counts))
-    unique_groups     = len(set(predicted_clusters))
-
     return jsonify({
         "stats": {
-            "total_patients": total_patients,
-            "total_matched":  total_matched,
-            "unique_groups":  unique_groups,
+            "total_patients": len(patient_df),
+            "total_matched":  int(sum(matched_counts)),
+            "unique_groups":  len(set(int(x) for x in predicted_clusters)),
         },
         "rows": rows
     })

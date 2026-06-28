@@ -1,225 +1,199 @@
-# 🩺 AI-Based Healthcare Symptom Clustering and Disease Recommendation System
+🔗 Live Demo: disease-symptom-pattern-discovery.onrender.com
+
+⚠️ Hosted on Render's free tier — first load may take 30–60 seconds to wake up.
+
+# 🩺 MedAI — Disease Symptom Pattern Discovery
+
+An AI-powered healthcare analytics web app that groups diseases by symptom patterns and recommends possible conditions using unsupervised machine learning — deployed live on Render.
+
+🔗 **Live Demo:** [disease-symptom-pattern-discovery.onrender.com](https://disease-symptom-pattern-discovery.onrender.com)
+
+> ⚠️ Hosted on Render's free tier — first load may take 30–60 seconds to wake up.
+
+---
 
 ## 📌 Overview
 
-This project is an AI-powered healthcare analytics system that groups diseases based on symptom patterns and recommends possible diseases for new patients using unsupervised machine learning.
-
-The system analyzes symptom data, discovers hidden disease groups using clustering, and predicts the most likely medical conditions based on symptom similarity.
+MedAI analyzes patient symptom data, discovers hidden disease clusters using K-Means + PCA, and predicts the most likely medical conditions based on cosine similarity. The system was trained on a dataset of **246,945 patient records** across **329 symptoms** and **13 disease groups**.
 
 ---
 
 ## 🚀 Features
 
-* Disease grouping using K-Means Clustering
-* Dimensionality reduction using PCA
-* Disease recommendation using Cosine Similarity
-* Interactive Symptom Checker
-* Medical Condition Group Prediction
-* Disease Match Percentage Calculation
-* CSV Upload Support for Batch Predictions
-* Cluster Visualization using PCA
-* Modern Healthcare Dashboard UI
+| Feature | Description |
+|---|---|
+| **Symptom Checker** | Select symptoms and get AI-predicted disease group + match percentages |
+| **CSV Batch Prediction** | Upload a patient CSV for bulk disease prediction |
+| **Group Explorer** | Browse all 13 disease groups, their top symptoms and conditions |
+| **Sample Datasets** | Built-in 10/15/20 patient demo datasets to test instantly |
+| **Clinical Brutalism UI** | Premium dark UI with deep navy, acid-mint, electric-cyan palette |
 
 ---
 
 ## 🏗️ Machine Learning Pipeline
 
-### 1. Data Preprocessing
-
-* Cleaned healthcare symptom dataset
-* Binary symptom encoding (0 = absent, 1 = present)
-* Feature scaling using StandardScaler
-
-### 2. Dimensionality Reduction
-
-* Principal Component Analysis (PCA)
-* Reduced high-dimensional symptom space
-* Improved clustering performance and visualization
-
-### 3. Clustering
-
-* K-Means Clustering
-* 26 Medical Condition Groups discovered
-* Similar diseases automatically grouped together
-
-### 4. Disease Recommendation
-
-* Cosine Similarity
-* Finds diseases with symptom patterns closest to the patient
-* Returns disease match percentages
-
----
-
-## 📊 Technologies Used
-
-| Technology          | Purpose                  |
-| ------------------- | ------------------------ |
-| Python              | Core Development         |
-| Pandas              | Data Processing          |
-| NumPy               | Numerical Computation    |
-| Scikit-Learn        | Machine Learning         |
-| PCA                 | Dimensionality Reduction |
-| K-Means             | Disease Clustering       |
-| Cosine Similarity   | Disease Recommendation   |
-| Matplotlib          | Visualization            |
-| Flask               | Backend                  |
-| HTML/CSS/JavaScript | Frontend                 |
-
----
-
-## 📂 Project Structure
-
-```text
-Disease-Symptom-Pattern/
-│
-├── models/
-│   ├── kmeans_model.pkl
-│   ├── pca_model.pkl
-│   ├── scaler.pkl
-│   └── symptom_columns.pkl
-│
-├── static/
-│   ├── css/
-│   │   └── style.css
-│   │
-│   └── js/
-│       └── app.js
-│
-├── templates/
-│   └── index.html
-│
-├── Disease-Symptom-Pattern-Discovery.ipynb
-├── app.py
-├── requirements.txt
-├── README.md
-│
-└── .gitignore
+```
+Raw Symptom Data (329 binary features)
+        ↓
+StandardScaler (feature normalization)
+        ↓
+PCA (dimensionality reduction)
+        ↓
+K-Means Clustering (13 disease groups)
+        ↓
+Cosine Similarity (disease recommendation)
+        ↓
+Disease Match % (top predictions)
 ```
 
+### Key Design Decisions
+- **Binary encoding** — symptoms are 0/1 (absent/present), stored as `uint8` to minimize memory
+- **Stratified cluster cache** — instead of loading the full 78MB DataFrame at runtime, a 0.3MB pre-computed cache of 2,000 stratified samples per cluster is used
+- **dtype-aware CSV loading** — `pd.read_csv(..., dtype=dtype_map)` avoids a 616MB float64 intermediate spike during startup
+
 ---
 
-## 📈 Medical Condition Groups
+## 🩺 Disease Groups (13 Clusters)
 
-The model automatically discovers 26 medical condition groups including:
-
-* Respiratory & Lung Disorders
-* Heart & Cardiac Disorders
-* Neurological Disorders
-* Eye & Vision Disorders
-* Skin & Dermatological Disorders
-* Urinary Disorders
-* Dental & Oral Disorders
-* Gastrointestinal Disorders
-* Pregnancy & Reproductive Disorders
-* Psychiatric & Behavioral Disorders
-* Musculoskeletal Disorders
-* Ear & Hearing Disorders
+| # | Group | Icon |
+|---|---|---|
+| 0 | Arm & Shoulder Disorders | 💪 |
+| 1 | Dental & Oral Disorders | 🦷 |
+| 2 | Respiratory & Pulmonary Disorders | 🫁 |
+| 3 | Urinary & Prostate Disorders | 💧 |
+| 4 | Musculoskeletal & Joint Disorders | 🦴 |
+| 5 | Skin Mass & Tumor Disorders | 🔬 |
+| 6 | Gynecological & Pregnancy Disorders | 🤱 |
+| 7 | Vision & Retinal Disorders | 👁️ |
+| 8 | Eye Infection & Conjunctival Disorders | 👁️‍🗨️ |
+| 9 | Spine & Nerve Pain Disorders | 🧠 |
+| 10 | Gastrointestinal & Metabolic Disorders | 🫃 |
+| 11 | Psychiatric & Behavioral Disorders | 🧘 |
+| 12 | Skin & Dermatological Disorders | 🩹 |
 
 ---
 
 ## 🔍 Example Workflow
 
-Patient Symptoms:
-
-* Fever
-* Cough
-* Wheezing
-* Shortness of Breath
-
-↓
-
-Predicted Medical Group:
-
-Respiratory & Lung Disorders
-
-↓
-
+```
+Patient Symptoms: fever, cough, wheezing, shortness of breath
+         ↓
+Predicted Group: 🫁 Respiratory & Pulmonary Disorders
+         ↓
 Possible Diseases:
-
-* Pneumonia
-* Bronchitis
-* Asthma
-
-↓
-
-Disease Match Percentage:
-
-* Pneumonia (48%)
-* Bronchitis (32%)
-* Asthma (20%)
-
----
-
-## 📸 Visualization
-
-The project includes:
-
-* PCA Cluster Visualization
-* Disease Cluster Analysis
-* Symptom Distribution Charts
-* Medical Condition Group Explorer
-
----
-
-## ⚙️ Installation
-
-### Clone Repository
-
-```bash
-git clone https://github.com/SATYA012904/Disease-Symptom-Pattern-Discovery/edit/main/README.md
-
+  • Pneumonia       (48%)
+  • Bronchitis      (32%)
+  • Asthma          (20%)
 ```
 
-### Install Dependencies
+---
+
+## 📂 Project Structure
+
+```
+Disease-Symptom-Pattern-Discovery/
+│
+├── models/
+│   ├── kmeans_model.pkl        # Trained K-Means model
+│   ├── pca_model.pkl           # Trained PCA model
+│   ├── scaler.pkl              # Fitted StandardScaler
+│   ├── symptom_columns.pkl     # List of 329 symptom feature names
+│   └── cluster_cache.pkl       # Pre-computed 0.3MB cluster cache (replaces 78MB DataFrame)
+│
+├── data/
+│   └── preclustered_dataset.zip  # Compressed dataset (2.5MB zip → 160MB CSV)
+│
+├── static/
+│   ├── css/style.css           # Clinical Brutalism design system
+│   ├── js/app.js               # Frontend logic
+│   └── sample_csvs/            # Built-in demo patient datasets (10/15/20 patients)
+│
+├── templates/
+│   └── index.html              # Jinja2 template
+│
+├── app.py                      # Flask backend
+├── requirements.txt            # Pinned dependencies
+├── .python-version             # Forces Python 3.11.9 on Render
+├── runtime.txt                 # Render Python version fallback
+└── .gitignore
+```
+
+---
+
+## ⚙️ Local Setup
 
 ```bash
+# 1. Clone the repository
+git clone https://github.com/SATYA012904/Disease-Symptom-Pattern-Discovery.git
+cd Disease-Symptom-Pattern-Discovery
+
+# 2. Install dependencies
 pip install -r requirements.txt
-```
 
-### Run Application
-
-```bash
+# 3. Run the app
 python app.py
-```
 
-Open:
-
-```text
+# 4. Open in browser
 http://127.0.0.1:5000
 ```
 
 ---
 
-## 🎯 Applications
+## 📊 Tech Stack
 
-* Healthcare Analytics
-* Disease Pattern Discovery
-* Clinical Decision Support
-* Symptom-Based Disease Recommendation
-* Medical Research
-* Educational Demonstrations
+| Layer | Technology |
+|---|---|
+| Backend | Flask 2.3 |
+| ML | scikit-learn 1.6.1 (KMeans, PCA, StandardScaler, Cosine Similarity) |
+| Data | Pandas 2.1.4, NumPy 1.26.4 |
+| Frontend | HTML5, CSS3, Vanilla JavaScript |
+| Fonts | Syne + DM Sans (Google Fonts) |
+| Deployment | Render (free tier) |
+| Python | 3.11.9 |
+
+---
+
+## 🧠 Memory Optimization (Render Free Tier — 512MB limit)
+
+The biggest engineering challenge was fitting the app within Render's 512MB RAM limit:
+
+| Problem | Solution |
+|---|---|
+| `read_csv` spikes to 616MB (float64 intermediate) | Pass `dtype=uint8` map directly into `read_csv` |
+| 78MB DataFrame kept in memory at runtime | Pre-computed 0.3MB `cluster_cache.pkl` with stratified 2k samples/cluster |
+| Cosine similarity on 82k rows (Cluster 2) → OOM | Capped at 2,000 stratified rows per cluster |
+| Python 3.14 default on Render breaks pandas | `.python-version` file pins Python 3.11.9 |
+
+Final startup memory: **~120MB** (well within 512MB limit).
+
+---
+
+## 🎯 Use Cases
+
+- Healthcare analytics & disease pattern discovery
+- Clinical decision support prototype
+- Medical symptom triage assistance
+- Educational ML demonstration
+- Research on unsupervised learning in healthcare
 
 ---
 
 ## 🔮 Future Improvements
 
-* Deep Learning-based Disease Prediction
-* Explainable AI (XAI)
-* Real-time Patient Monitoring
-* Medical Report Generation
-* Voice-Based Symptom Input
-* Chatbot Integration
-* Cloud Deployment
+- [ ] Deep learning disease prediction (LSTM / Transformer)
+- [ ] Explainable AI (SHAP / LIME for symptom importance)
+- [ ] Real-time patient monitoring dashboard
+- [ ] Voice-based symptom input
+- [ ] Medical report PDF generation
+- [ ] Multilingual support
 
 ---
 
 ## 👨‍💻 Author
 
-Satyabrata Sahu
-
+**Satyabrata Sahu**
 B.Tech Computer Science Engineering
-
-Machine Learning | Data Science | Artificial Intelligence
+*Machine Learning · Data Science · Artificial Intelligence*
 
 ---
 

@@ -1,7 +1,3 @@
-🔗 Live Demo: disease-symptom-pattern-discovery.onrender.com
-
-⚠️ Hosted on Render's free tier — first load may take 30–60 seconds to wake up.
-
 # 🩺 MedAI — Disease Symptom Pattern Discovery
 
 An AI-powered healthcare analytics web app that groups diseases by symptom patterns and recommends possible conditions using unsupervised machine learning — deployed live on Render.

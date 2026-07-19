@@ -132,8 +132,8 @@ def api_symptom_check():
     cluster_num, cluster_name, disease_pct = predict_for_input(input_vector)
 
     results = [
-        {"disease": d, "percentage": round(float(p), 2)}
-        for d, p in disease_pct.head(6).items()
+    {"disease": d, "percentage": round(float(p), 2)}
+    for d, p in list(disease_pct.items())[:6]
     ]
     return jsonify({
         "cluster_num":  int(cluster_num),
